@@ -1,0 +1,46 @@
+# Ignore build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+main
+
+# Ignore test binary
+*.test
+
+# Ignore output of go coverage tool
+*.out
+
+# Ignore dependency directories
+vendor/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore docker files
+Dockerfile*
+.dockerignore
+
+# Ignore README and docs
+README.md
+*.md
+
+# Ignore temporary files
+tmp/
+temp/
+
+# Ignore logs
+*.log

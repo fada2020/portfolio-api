@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: portfolio-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    branch: main
+    healthCheckPath: /health
+    envVars:
+      - key: GIN_MODE
+        value: release
+      - key: PORT
+        fromService:
+          type: web
+          name: portfolio-api
+          property: port
+
+  - type: pserv  # PostgreSQL
+    name: portfolio-db
+    env: postgresql
+    plan: free
+    databaseName: portfolio
+    databaseUser: portfolio_user
+    region: oregon

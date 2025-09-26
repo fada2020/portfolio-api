@@ -1,0 +1,26 @@
+[build]
+  functions = "functions"
+  command = "go build -o functions/portfolio-api/portfolio-api ."
+
+[build.environment]
+  GO_VERSION = "1.23"
+  GIN_MODE = "release"
+
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/portfolio-api"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/portfolio-api/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/swagger/*"
+  to = "/.netlify/functions/portfolio-api/swagger/:splat"
+  status = 200
+
+[functions]
+  external_node_modules = []
+  included_files = ["docs/**/*"]

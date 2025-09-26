@@ -1,24 +1,13 @@
 {
   "functions": {
-    "api/index.go": {
-      "runtime": "@vercel/go"
+    "api/*.go": {
+      "runtime": "@vercel/go@latest"
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/health",
-      "dest": "/api/index.go"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.go"
-    },
-    {
-      "src": "/swagger/(.*)",
-      "dest": "/api/index.go"
+      "source": "/(.*)",
+      "destination": "/api/index"
     }
-  ],
-  "env": {
-    "GIN_MODE": "release"
-  }
+  ]
 }

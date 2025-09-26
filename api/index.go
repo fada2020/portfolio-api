@@ -1,114 +1,134 @@
 package handler
 
 import (
-	"log"
+	"encoding/json"
 	"net/http"
-	"os"
 	"time"
-
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"portfolio-api/database"
-	"portfolio-api/handlers"
 )
-
-var router *gin.Engine
-
-func init() {
-	// Initialize Supabase database
-	if err := database.InitSupabase(); err != nil {
-		log.Printf("Failed to initialize Supabase: %v", err)
-	}
-
-	// Insert sample data on startup
-	if err := database.InsertSampleData(); err != nil {
-		log.Printf("Warning: Failed to insert sample data: %v", err)
-	}
-
-	// Set Gin mode for production
-	gin.SetMode(gin.ReleaseMode)
-
-	router = gin.New()
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
-
-	// CORS configuration for portfolio frontend
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{
-		"https://hyoukjoolee.github.io",     // GitHub Pages
-		"https://portfolio-api.vercel.app",  // Vercel deployment
-		"http://localhost:3000",             // Local development
-	}
-	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "X-Requested-With"}
-	config.AllowCredentials = true
-	router.Use(cors.New(config))
-
-	// Health check endpoint
-	router.GET("/health", healthCheck)
-
-	// API v1 routes
-	v1 := router.Group("/api/v1")
-	{
-		// User management
-		users := v1.Group("/users")
-		{
-			users.GET("", handlers.GetUsers)
-			users.POST("", handlers.CreateUser)
-			users.GET("/:id", handlers.GetUserByID)
-			users.PUT("/:id", handlers.UpdateUser)
-			users.DELETE("/:id", handlers.DeleteUser)
-		}
-
-		// Projects showcase
-		projects := v1.Group("/projects")
-		{
-			projects.GET("", handlers.GetProjects)
-			projects.GET("/:id", handlers.GetProject)
-			projects.POST("", handlers.CreateProject)
-			projects.PUT("/:id", handlers.UpdateProject)
-			projects.DELETE("/:id", handlers.DeleteProject)
-		}
-
-		// Skills and technologies
-		skills := v1.Group("/skills")
-		{
-			skills.GET("", handlers.GetSkills)
-			skills.POST("", handlers.AddSkill)
-			skills.DELETE("/:id", handlers.RemoveSkill)
-		}
-
-		// Contact form
-		contact := v1.Group("/contact")
-		{
-			contact.POST("", handlers.SubmitContactForm)
-		}
-
-		// Portfolio statistics
-		stats := v1.Group("/stats")
-		{
-			stats.GET("/views", handlers.GetViewStats)
-			stats.GET("/projects", handlers.GetProjectStats)
-			stats.POST("/visit", handlers.RecordVisit)
-		}
-	}
-
-	// Swagger documentation
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-}
 
 // Handler is the main entry point for Vercel
 func Handler(w http.ResponseWriter, r *http.Request) {
-	router.ServeHTTP(w, r)
+	// Set CORS headers
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+	// Handle preflight requests
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Route handling
+	switch r.URL.Path {
+	case "/health":
+		handleHealth(w, r)
+	case "/api/v1/users":
+		handleUsers(w, r)
+	case "/api/v1/projects":
+		handleProjects(w, r)
+	case "/api/v1/skills":
+		handleSkills(w, r)
+	default:
+		handleNotFound(w, r)
+	}
 }
 
-func healthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
+func handleHealth(w http.ResponseWriter, r *http.Request) {
+	response := map[string]interface{}{
 		"status":    "healthy",
 		"timestamp": time.Now().UTC(),
 		"version":   "1.0.0",
 		"platform":  "vercel",
-	})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func handleUsers(w http.ResponseWriter, r *http.Request) {
+	users := []map[string]interface{}{
+		{
+			"id":       "1",
+			"name":     "이혁주",
+			"email":    "hyoukjoo@example.com",
+			"role":     "Full-Stack Developer",
+			"bio":      "Backend engineer specializing in Go, TypeScript, and cloud architecture",
+			"website":  "https://hyoukjoolee.github.io/portfolio",
+			"location": "Seoul, Korea",
+			"skills":   []string{"Go", "TypeScript", "Flutter", "AWS", "Docker", "PostgreSQL"},
+			"is_public": true,
+		},
+	}
+
+	response := map[string]interface{}{
+		"data":  users,
+		"count": len(users),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func handleProjects(w http.ResponseWriter, r *http.Request) {
+	projects := []map[string]interface{}{
+		{
+			"id":          "1",
+			"title":       "Portfolio API Server",
+			"description": "Go REST API with Supabase integration deployed on Vercel",
+			"tech_stack":  []string{"Go", "Supabase", "Vercel"},
+			"status":      "completed",
+			"featured":    true,
+			"live_url":    "https://portfolio-api.vercel.app",
+			"github_url":  "https://github.com/hyoukjoolee/portfolio-api",
+			"is_public":   true,
+		},
+		{
+			"id":          "2",
+			"title":       "Flutter Portfolio",
+			"description": "Responsive portfolio website with i18n support",
+			"tech_stack":  []string{"Flutter", "Dart", "GitHub Pages"},
+			"status":      "completed",
+			"featured":    true,
+			"live_url":    "https://hyoukjoolee.github.io/portfolio",
+			"github_url":  "https://github.com/hyoukjoolee/portfolio",
+			"is_public":   true,
+		},
+	}
+
+	response := map[string]interface{}{
+		"data":  projects,
+		"count": len(projects),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func handleSkills(w http.ResponseWriter, r *http.Request) {
+	skills := []map[string]interface{}{
+		{"id": "1", "name": "Go", "category": "backend", "level": "expert", "years_exp": 3, "featured": true, "color": "#00ADD8"},
+		{"id": "2", "name": "TypeScript", "category": "frontend", "level": "advanced", "years_exp": 4, "featured": true, "color": "#3178C6"},
+		{"id": "3", "name": "Flutter", "category": "mobile", "level": "advanced", "years_exp": 2, "featured": true, "color": "#02569B"},
+		{"id": "4", "name": "Supabase", "category": "database", "level": "intermediate", "years_exp": 1, "featured": true, "color": "#3ECF8E"},
+	}
+
+	response := map[string]interface{}{
+		"data":  skills,
+		"count": len(skills),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
+
+func handleNotFound(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	response := map[string]interface{}{
+		"error": "Endpoint not found",
+		"path":  r.URL.Path,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }

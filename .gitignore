@@ -1,0 +1,40 @@
+# 환경변수 파일들 (보안상 Git에 올리지 않음)
+.env
+.env.local
+.env.production
+.env.development
+
+# Go 빌드 파일들
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+portfolio-api
+main
+
+# 테스트 결과
+*.test
+*.out
+
+# Go 모듈 캐시
+go.sum
+
+# IDE 설정 파일들
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 시스템 파일들
+.DS_Store
+Thumbs.db
+
+# 로그 파일들
+*.log
+
+# 임시 파일들
+tmp/
+temp/
+.vercel

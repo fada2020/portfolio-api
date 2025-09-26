@@ -30,6 +30,11 @@ export default function handler(req, res) {
     return handleSkills(req, res);
   }
 
+  // Root health check
+  if (url === '/') {
+    return handleHealth(req, res);
+  }
+
   // Default 404
   res.status(404).json({
     error: 'Endpoint not found',

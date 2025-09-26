@@ -30,6 +30,10 @@ export default function handler(req, res) {
     return handleSkills(req, res);
   }
 
+  if (url === '/api/v1/contact') {
+    return handleContact(req, res);
+  }
+
   // Root health check
   if (url === '/') {
     return handleHealth(req, res);
@@ -115,5 +119,27 @@ function handleSkills(req, res) {
   res.status(200).json({
     data: skills,
     count: skills.length
+  });
+}
+
+function handleContact(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({
+      error: 'Method not allowed',
+      message: 'Only POST requests are supported for this endpoint'
+    });
+  }
+
+  // In a real implementation, you would:
+  // 1. Validate the request body
+  // 2. Send email or store in database
+  // 3. Return appropriate response
+
+  const contactId = Math.floor(Math.random() * 10000);
+
+  res.status(201).json({
+    message: 'Contact form submitted successfully',
+    id: contactId,
+    timestamp: new Date().toISOString()
   });
 }

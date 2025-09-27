@@ -53,7 +53,7 @@ func main() {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
 		"http://localhost:3000",           // Local Flutter dev
-		"https://hyoukjoolee.github.io",   // GitHub Pages
+		"https://fada2020.github.io",   // GitHub Pages
 	}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization", "X-Requested-With"}

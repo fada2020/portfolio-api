@@ -34,6 +34,32 @@ export default function handler(req, res) {
     return handleContact(req, res);
   }
 
+  // Individual resource endpoints
+  if (url.startsWith('/api/v1/users/') && url !== '/api/v1/users') {
+    return handleUserById(req, res);
+  }
+
+  if (url.startsWith('/api/v1/projects/') && url !== '/api/v1/projects') {
+    return handleProjectById(req, res);
+  }
+
+  if (url.startsWith('/api/v1/skills/') && url !== '/api/v1/skills') {
+    return handleSkillById(req, res);
+  }
+
+  // Stats endpoints
+  if (url === '/api/v1/stats/views') {
+    return handleStatsViews(req, res);
+  }
+
+  if (url === '/api/v1/stats/projects') {
+    return handleStatsProjects(req, res);
+  }
+
+  if (url === '/api/v1/stats/visit') {
+    return handleStatsVisit(req, res);
+  }
+
   // Root health check
   if (url === '/') {
     return handleHealth(req, res);
@@ -140,6 +166,136 @@ function handleContact(req, res) {
   res.status(201).json({
     message: 'Contact form submitted successfully',
     id: contactId,
+    timestamp: new Date().toISOString()
+  });
+}
+
+function handleUserById(req, res) {
+  const userId = req.url.split('/').pop();
+
+  if (req.method === 'GET') {
+    // Get single user
+    res.status(200).json({
+      id: userId,
+      name: '이혁주',
+      email: 'hyoukjoo@example.com',
+      role: 'Full-Stack Developer',
+      bio: 'Backend engineer specializing in Go, TypeScript, and cloud architecture',
+      website: 'https://hyoukjoolee.github.io/portfolio',
+      location: 'Seoul, Korea',
+      skills: ['Go', 'TypeScript', 'Flutter', 'AWS', 'Docker', 'PostgreSQL'],
+      is_public: true
+    });
+  } else if (req.method === 'PUT') {
+    // Update user
+    res.status(200).json({
+      message: 'User updated successfully',
+      id: userId,
+      timestamp: new Date().toISOString()
+    });
+  } else if (req.method === 'DELETE') {
+    // Delete user
+    res.status(204).end();
+  } else {
+    res.status(405).json({ error: 'Method not allowed' });
+  }
+}
+
+function handleProjectById(req, res) {
+  const projectId = req.url.split('/').pop();
+
+  if (req.method === 'GET') {
+    // Get single project
+    res.status(200).json({
+      id: projectId,
+      title: 'Portfolio API Server',
+      description: 'Go REST API with Supabase integration deployed on Vercel',
+      tech_stack: ['Go', 'Supabase', 'Vercel'],
+      status: 'completed',
+      featured: true,
+      live_url: 'https://portfolio-api.vercel.app',
+      github_url: 'https://github.com/hyoukjoolee/portfolio-api',
+      is_public: true
+    });
+  } else if (req.method === 'PUT') {
+    // Update project
+    res.status(200).json({
+      message: 'Project updated successfully',
+      id: projectId,
+      timestamp: new Date().toISOString()
+    });
+  } else if (req.method === 'DELETE') {
+    // Delete project
+    res.status(204).end();
+  } else {
+    res.status(405).json({ error: 'Method not allowed' });
+  }
+}
+
+function handleSkillById(req, res) {
+  const skillId = req.url.split('/').pop();
+
+  if (req.method === 'DELETE') {
+    // Delete skill
+    res.status(204).end();
+  } else {
+    res.status(405).json({ error: 'Method not allowed' });
+  }
+}
+
+function handleStatsViews(req, res) {
+  res.status(200).json({
+    total_views: 1250,
+    unique_visitors: 950,
+    views_today: 45,
+    views_this_week: 320,
+    views_this_month: 1100,
+    top_pages: [
+      { page: '/projects', views: 450 },
+      { page: '/api', views: 320 },
+      { page: '/resume', views: 280 }
+    ],
+    views_by_country: [
+      { country: 'KR', views: 750 },
+      { country: 'US', views: 250 },
+      { country: 'JP', views: 150 }
+    ],
+    views_over_time: [
+      { date: '2023-12-01', views: 45 },
+      { date: '2023-12-02', views: 38 },
+      { date: '2023-12-03', views: 52 }
+    ]
+  });
+}
+
+function handleStatsProjects(req, res) {
+  res.status(200).json({
+    total_projects: 12,
+    completed_projects: 8,
+    featured_projects: 3,
+    tech_stack_stats: [
+      { technology: 'Go', count: 5, percentage: 41.7 },
+      { technology: 'TypeScript', count: 7, percentage: 58.3 },
+      { technology: 'Flutter', count: 3, percentage: 25.0 }
+    ],
+    projects_by_status: [
+      { status: 'completed', count: 8 },
+      { status: 'in-progress', count: 3 },
+      { status: 'planned', count: 1 }
+    ]
+  });
+}
+
+function handleStatsVisit(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({
+      error: 'Method not allowed',
+      message: 'Only POST requests are supported for this endpoint'
+    });
+  }
+
+  res.status(201).json({
+    message: 'Visit recorded successfully',
     timestamp: new Date().toISOString()
   });
 }
